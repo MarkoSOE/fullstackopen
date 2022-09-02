@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
+import personsService from './services/persons'
 
 const App = () => {
   // const [persons, setPersons] = useState([{ name: 'Arto Hellas', number: '040-123456', id: 1 },
@@ -13,8 +14,8 @@ const App = () => {
 
   useEffect(() => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
+    personsService
+      .getAll()
       .then(response => {
         setPersons(response.data)
         console.log(persons)
@@ -63,10 +64,11 @@ const App = () => {
       if(!found){
         //adding the object to the array of objects
         //here you have to use concat instead of push() because react does not work well with object mutability. Want to make sure that the state is immutable
-        setPersons(persons.concat(arradded))
-        axios.post('http://localhost:3001/persons', personObject)
-          .then(response => {
-            console.log(response)
+        personsService
+        .create(personObject)
+        .then(response => {
+          console.log(response.data)
+          setPersons(persons.concat(response.data))
           })
           .catch(error => console.log(error))
         setNewName('')

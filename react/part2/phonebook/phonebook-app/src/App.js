@@ -64,6 +64,11 @@ const App = () => {
         //adding the object to the array of objects
         //here you have to use concat instead of push() because react does not work well with object mutability. Want to make sure that the state is immutable
         setPersons(persons.concat(arradded))
+        axios.post('http://localhost:3001/persons', personObject)
+          .then(response => {
+            console.log(response)
+          })
+          .catch(error => console.log(error))
         setNewName('')
         setNewNumber('')
       }

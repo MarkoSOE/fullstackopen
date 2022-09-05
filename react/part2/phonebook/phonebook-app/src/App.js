@@ -12,11 +12,10 @@ const App = () => {
 
 
   useEffect(() => {
-    console.log('effect')
     personsService
       .getAll()
-      .then(response => {
-        setPersons(response.data)
+      .then(initialPeople => {
+        setPersons(initialPeople)
       })
       .catch(error => console.error(error))
   }, [])
@@ -42,7 +41,18 @@ const App = () => {
     }
 
     if(persons.some(el => el.name === newName)){
-      alert(`${newName} is already added to phonebook`)
+		const personID = persons.filter(person => person.name === newName)
+		//if the name already exists, ask the user if they want to replace their number with the one provided in newName
+		if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
+			personsService
+			.replacePerson(personID[0].id, personObject)
+			.then((replacedPerson) => {
+			setPersons(persons.map(person => person.id === personID[0].id ? replacedPerson : person))
+				setNewName('')
+				setNewNumber('')
+			})
+			.catch(error => console.error(error))
+		}
     }
     else{
       if(newName === "" || newNumber === ""){
@@ -51,15 +61,26 @@ const App = () => {
       else{
         personsService
         .create(personObject)
-        .then(response => {
-          console.log(response.data)
-          setPersons(persons.concat(response.data))
+        .then(addedPerson => {
+          console.log(addedPerson)
+          setPersons(persons.concat(addedPerson))
           setNewName('')
           setNewNumber('')
         })
         .catch(error => console.error(error))
       }
     }
+  }
+
+  const removeEntry = (personID) => {
+	if(window.confirm('Do you wish to delete this person')){
+		personsService
+		.deleteName(personID)
+		.then(() => {
+			setPersons(persons.filter(person => person.id !== personID))
+		})
+		.catch(error => console.error(error))
+	}
   }
 
   return (
@@ -77,7 +98,7 @@ const App = () => {
       />
       <h2>Numbers</h2>
       <ul>
-        <Phonebook persons={persons} filterName={filterName}/>
+        <Phonebook persons={persons} filterName={filterName} removeEntry={removeEntry}/>
       </ul>
     </div>
   )

@@ -13,7 +13,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
 
-
+//useEffect executes afer render
   useEffect(() => {
     personsService
       .getAll()
@@ -21,8 +21,11 @@ const App = () => {
         setPersons(initialPeople)
       })
       .catch(error => console.error(error))
+	  //using the [] parameter, we tell React to only execute the useEffect once
   }, [])
 
+
+  //set the state of the variables above to the value typed in the input fields
   const handleNameChange = (event) => {
     setNewName(event.target.value)
   }
@@ -43,6 +46,7 @@ const App = () => {
     }
 
 	//go through the persons array and find if there's a matching name already inside
+    //the some() method tests whether at least one element in the array passes the test provided; if the name is equal to the name provided by the user
     if(persons.some(el => el.name === newName)){
 		const personID = persons.filter(person => person.name === newName)
 		//if the name already exists, ask the user if they want to replace their number with the one provided in newName
@@ -60,27 +64,29 @@ const App = () => {
     }
     else{
       if(newName === "" || newNumber === ""){
-        alert('the name and number must not be empty')
+        setErrorMessage('The name or number must not be empty')
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
       }
       else{
         personsService
         .create(personObject)
         .then(addedPerson => {
-          console.log(addedPerson)
           setPersons(persons.concat(addedPerson))
           setNewName('')
           setNewNumber('')
-		  setSuccessMessage(`Successfully added ${personObject.name}`)
-		  setTimeout(() => {
-			setSuccessMessage(null)
-		  }, 5000);
+          setSuccessMessage(`Successfully added ${personObject.name}`)
+          setTimeout(() => {
+          setSuccessMessage(null)
+          }, 5000);
         })
         .catch(() => {
-			setErrorMessage(`Failed to add ${personObject.name}`)
-			setTimeout(() => {
-				setErrorMessage(null)
-			}, 5000)
-		})
+          setErrorMessage(`Failed to add ${personObject.name}`)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+		    })
       }
     }
   }
@@ -97,7 +103,7 @@ const App = () => {
 			}, 5000);
 		})
 		.catch(() => {
-			setErrorMessage(`failed to delete person ${personID}`)
+			setErrorMessage(`Information of ${persons.filter(person => person.id === personID)[0].name} has already been removed from the server`)
 			setTimeout(() => {
 				setErrorMessage(null)
 			}, 5000);
